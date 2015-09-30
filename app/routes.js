@@ -1,9 +1,10 @@
-'use strict'
+'use strict';
 let express = require('express');
 let User = require('./models/user');
 let Expense = require('./models/expense');
 let cors = require('cors');
 let jwt = require('jsonwebtoken');
+let moment = require('moment');
 
 module.exports = (app) => {
   let apiRoutes = express.Router();
@@ -44,7 +45,7 @@ module.exports = (app) => {
         }
       })
       .catch(err => {
-        throw err
+        throw err;
       });
   });
 
@@ -95,7 +96,7 @@ module.exports = (app) => {
     }
 
     // Ensure we get the metadata and query populated before running query
-    new Promise((resolve, reject) => {
+    new Promise(resolve => {
       if (index === 0) {
         // only return the full length on the first request
         Expense.count(query).then(count => {
@@ -112,5 +113,68 @@ module.exports = (app) => {
     });
   });
 
+  apiRoutes.get('/expenses/overview', (req, res) => {
+    let resultset = {};
+
+    Expense.aggregate([{
+      $match: {
+        $and: [{
+          date: {
+            $gt: moment().subtract(11, 'months').startOf('month').toDate()
+          }
+        }, {
+          user: req.user.name
+        }]
+      }
+    }, {
+      $group: {
+        _id: {
+          month: {
+            $month: '$date'
+          },
+          year: {
+            $year: '$date'
+          }
+        },
+        total: {
+          $sum: '$total'
+        }
+      }
+    }], (err, history) => {
+      if (err) {
+        console.log(err);
+      }
+
+      history.sort((a, b) => {
+        return a._id.year - b._id.year || a._id.month - b._id.month;
+      });
+
+      resultset.history = history;
+
+      Expense.aggregate([{
+        $match: {
+          $and: [{
+            status: 'New'
+          }, {
+            user: req.user.name
+          }]
+        }
+      }, {
+        $group: {
+          _id: null,
+          total: {
+            $sum: '$total'
+          }
+        }
+      }], (err, totalOwed) => {
+        if (err) {
+          console.log(err);
+        }
+        resultset.totalOwed = totalOwed[0].total;
+        res.json(resultset);
+      });
+    });
+  });
+
   app.use('/api/v1', apiRoutes);
-}
+};

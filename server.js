@@ -5,7 +5,6 @@
   let bodyParser = require('body-parser');
   let morgan = require('morgan');
   let mongoose = require('mongoose');
-  
 
   let config = require('./config');
   let demodata = require('./app/demodata.js');
