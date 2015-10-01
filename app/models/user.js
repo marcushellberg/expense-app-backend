@@ -17,7 +17,7 @@ userSchema.pre('save', function(next) {
 
   bcrypt.genSalt((err, salt) => {
     if (err) {
-      console.log('salt creation failed', err)
+      console.log('salt creation failed', err);
       return next(err);
     }
 
@@ -28,7 +28,7 @@ userSchema.pre('save', function(next) {
       }
       user.password = hash;
       next();
-    })
+    });
   });
 });
 

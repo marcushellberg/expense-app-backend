@@ -29,7 +29,7 @@ module.exports.createExpenses = () => {
     if (count === 0) {
       let date = moment();
       for (let i = 0; i < 10000; i++) {
-        date = date.subtract(Math.floor(Math.random()*72), 'hours');
+        date = date.subtract(Math.floor(Math.random() * 72), 'hours');
         let status = 'New';
         if (i > 75) {
           status = 'Reimbursed';
@@ -40,7 +40,7 @@ module.exports.createExpenses = () => {
           user: 'demo',
           date: date,
           merchant: ['Electronics', 'Rental car', 'Airline', 'Hotel'][Math.floor(Math.random() * 4)],
-          total: Math.random() * (Math.random()*3) * 300 ,
+          total: Math.random() * (Math.random() * 3) * 300,
           status: status,
           comment: 'No comments, please.'
         }).save(err => {

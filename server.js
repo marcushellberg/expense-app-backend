@@ -12,7 +12,9 @@
   let port = 8080;
   mongoose.connect(config.database);
   app.set('secret', config.secret);
-  app.use(bodyParser.urlencoded({extended: false}));
+  app.use(bodyParser.urlencoded({
+    extended: false
+  }));
   app.use(bodyParser.json());
   app.use(morgan('dev'));
 
