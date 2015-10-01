@@ -144,9 +144,17 @@ module.exports = (app) => {
       if (err) {
         console.log(err);
       }
-
+      // Clean up result. You could probably already do this in the
+      // aggregate function, but I couldn't figure out how
+      history = history.map(el => {
+        return {
+          month: el._id.month,
+          year: el._id.year,
+          total: el.total
+        };
+      });
       history.sort((a, b) => {
-        return a._id.year - b._id.year || a._id.month - b._id.month;
+        return a.year - b.year || a.month - b.month;
       });
 
       resultset.history = history;
