@@ -4,7 +4,7 @@ let Expense = require('./models/expense');
 let moment = require('moment');
 
 module.exports.createUser = () => {
-  // User.remove({});
+  //User.remove({});
   User.count({}).then(count => {
     if (count === 0) {
       new User({
@@ -31,16 +31,16 @@ module.exports.createExpenses = () => {
       for (let i = 0; i < 10000; i++) {
         date = date.subtract(Math.floor(Math.random() * 72), 'hours');
         let status = 'New';
-        if (i > 75) {
+        if (i > 30) {
           status = 'Reimbursed';
-        } else if (i > 50) {
+        } else if (i > 15) {
           status = 'In Progress';
         }
         new Expense({
           user: 'demo',
           date: date,
           merchant: ['Electronics', 'Rental car', 'Airline', 'Hotel'][Math.floor(Math.random() * 4)],
-          total: Math.random() * (Math.random() * 3) * 300,
+          total: Math.random() * (Math.random() * 3) * 300 + 10,
           status: status,
           comment: 'No comments, please.'
         }).save(err => {

@@ -1,11 +1,29 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+'use strict';
+let mongoose = require('mongoose');
+let Schema = mongoose.Schema;
+let statuses = ['New', 'In Progress', 'Reimbursed'];
 
 module.exports = mongoose.model('Expense', new Schema({
-  user: String,
-  date: Date,
-  merchant: String,
-  total: Number,
-  status: String,
+  user: {
+    type: String,
+    required: true
+  },
+  date: {
+    type: Date,
+    required: true
+  },
+  merchant: {
+    type: String,
+    required: true
+  },
+  total: {
+    type: Number,
+    required: true
+  },
+  status: {
+    type: String,
+    enum: statuses,
+    default: 'New'
+  },
   comment: String
 }));
