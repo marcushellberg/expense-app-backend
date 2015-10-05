@@ -25,5 +25,10 @@ module.exports = mongoose.model('Expense', new Schema({
     enum: statuses,
     default: 'New'
   },
+  receipt: {
+    type: String,
+    required: true
+  },
   comment: String
+
 }));

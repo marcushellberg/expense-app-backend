@@ -42,7 +42,8 @@ module.exports.createExpenses = () => {
           merchant: ['Electronics', 'Rental car', 'Airline', 'Hotel'][Math.floor(Math.random() * 4)],
           total: Math.random() * (Math.random() * 3) * 300 + 10,
           status: status,
-          comment: 'No comments, please.'
+          comment: 'No comments, please.',
+          receipt: 'default'
         }).save(err => {
           if (err) {
             console.log('Failed to create sample data', err);

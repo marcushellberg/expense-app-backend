@@ -1,8 +1,18 @@
 'use strict';
 let Expense = require('../models/expense');
 let moment = require('moment');
-module.exports = {
-  create: function(req, res) {
+let multer = require('multer');
+let mongoose = require('mongoose');
+const RECEIPTS_LOCATION = './files/receipts';
+let uploadHandler = multer({
+  dest: RECEIPTS_LOCATION,
+  limits: {
+    filesize: 5e6
+  }
+});
+
+module.exports = (routes) => {
+  routes.post('/expenses', uploadHandler.single('receipt'), (req, res) => {
     // Copy over and sanitize contents
     let expense = {};
     expense.user = req.user.name;
@@ -10,14 +20,16 @@ module.exports = {
     expense.total = req.body.total;
     expense.date = new Date(req.body.date);
     expense.comment = req.body.comment;
+    expense.receipt = req.file.filename;
 
     new Expense(expense).save(err => {
-      res.json({
+      res.status(201).json({
         success: err ? false : true
       });
     });
-  },
-  read: function(req, res) {
+  });
+
+  routes.get('/expenses', (req, res) => {
     let index = parseInt(req.query.index) || 0;
     let count = parseInt(req.params.count) || 50;
     let query = {
@@ -52,20 +64,79 @@ module.exports = {
       resolve();
     }).then(() => {
       Expense.find(query).sort(sort).skip(index).limit(count).then(expenses => {
-        resultset.result = expenses;
+        resultset.result = expenses.map(e => {
+          return {
+            id: e._id,
+            merchant: e.merchant,
+            total: e.total,
+            date: e.date,
+            status: e.status
+          };
+        });
         res.json(resultset);
       });
     });
-  },
-  update: function(req, res) {
-    res.send('Updating expense not implemented yet');
-  },
-  delete: function(req, res) {
-    res.send('Deleting expense not implemented yet');
-  },
-  overview: function(req, res) {
-    let resultset = {};
+  });
 
+  routes.post('/expenses/:id', uploadHandler.single('receipt'), (req, res) => {
+    Expense.findOne(mongoose.Types.ObjectId(req.params.id)).then(exp=> {
+      if (exp.user === req.user.name) {
+        exp.merchant = req.body.merchant || exp.merchant;
+        exp.total = req.body.total || exp.total;
+        exp.comment = req.body.comment || exp.comment;
+
+        if (req.file && req.file.filename) {
+          exp.receipt = req.file.filename;
+        }
+
+        exp.save(err => {
+          if (err) {
+            res.status(500);
+          } else {
+            res.json({
+              success: true
+            });
+          }
+        });
+      } else {
+        res.status(403);
+      }
+    }).catch(()=> {
+      res.status(404);
+    });
+  });
+
+  routes.delete('/expenses/:id', (req, res) => {
+    Expense.findOne(mongoose.Types.ObjectId(req.params.id)).then(exp=> {
+      if (exp.user === req.user.name) {
+        exp.delete(err => {
+          if (err) {
+            res.status(500);
+          }
+          res.status(200);
+        });
+      } else {
+        res.status(403);
+      }
+    }).catch(()=> {
+      res.status(404);
+    });
+  });
+
+  routes.get('/expenses/:id/receipt.jpg', (req, res)=> {
+    Expense.findOne(mongoose.Types.ObjectId(req.params.id)).then(exp=> {
+      if (exp.user === req.user.name) {
+        res.sendFile(exp.receipt, {root: RECEIPTS_LOCATION});
+      } else {
+        res.status(403);
+      }
+    }).catch(()=> {
+      res.status(404);
+    });
+  });
+
+  routes.get('/expenses/overview', (req, res) => {
+    let resultset = {};
     Expense.aggregate([{
       $match: {
         $and: [{
@@ -132,5 +203,5 @@ module.exports = {
         res.json(resultset);
       });
     });
-  }
+  });
 };
