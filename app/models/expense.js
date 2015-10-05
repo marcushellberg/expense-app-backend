@@ -1,9 +1,10 @@
 'use strict';
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
+let fs = require('fs');
 let statuses = ['New', 'In Progress', 'Reimbursed'];
 
-module.exports = mongoose.model('Expense', new Schema({
+let expenseSchema = new Schema({
   user: {
     type: String,
     required: true
@@ -31,4 +32,14 @@ module.exports = mongoose.model('Expense', new Schema({
   },
   comment: String
 
-}));
+});
+
+expenseSchema.pre('remove', expense => {
+  if (expense.receipt && expense.receipt !== 'default') {
+    fs.unlink('./files/receipts/' + expense.receipt, err=> {
+      console.log('Failed to delete receipt ' + expense.receipt, err);
+    });
+  }
+});
+
+module.exports = mongoose.model('Expense', expenseSchema);

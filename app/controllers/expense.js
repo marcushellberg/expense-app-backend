@@ -3,6 +3,8 @@ let Expense = require('../models/expense');
 let moment = require('moment');
 let multer = require('multer');
 let mongoose = require('mongoose');
+let fs = require('fs');
+
 const RECEIPTS_LOCATION = './files/receipts';
 let uploadHandler = multer({
   dest: RECEIPTS_LOCATION,
@@ -12,6 +14,8 @@ let uploadHandler = multer({
 });
 
 module.exports = (routes) => {
+
+  // CREATE
   routes.post('/expenses', uploadHandler.single('receipt'), (req, res) => {
     // Copy over and sanitize contents
     let expense = {};
@@ -23,12 +27,13 @@ module.exports = (routes) => {
     expense.receipt = req.file.filename;
 
     new Expense(expense).save(err => {
-      res.status(201).json({
+      res.json({
         success: err ? false : true
       });
     });
   });
 
+  // READ
   routes.get('/expenses', (req, res) => {
     let index = parseInt(req.query.index) || 0;
     let count = parseInt(req.params.count) || 50;
@@ -78,6 +83,7 @@ module.exports = (routes) => {
     });
   });
 
+  // UPDATE
   routes.post('/expenses/:id', uploadHandler.single('receipt'), (req, res) => {
     Expense.findOne(mongoose.Types.ObjectId(req.params.id)).then(exp=> {
       if (exp.user === req.user.name) {
@@ -86,6 +92,11 @@ module.exports = (routes) => {
         exp.comment = req.body.comment || exp.comment;
 
         if (req.file && req.file.filename) {
+          if (exp.receipt && exp.receipt !== 'default') {
+            fs.unlink(RECEIPTS_LOCATION + '/' + exp.receipt, err => {
+              console.log('Failed to delete receipt ' + exp.receipt, err);
+            });
+          }
           exp.receipt = req.file.filename;
         }
 
@@ -106,6 +117,7 @@ module.exports = (routes) => {
     });
   });
 
+  // DELETE
   routes.delete('/expenses/:id', (req, res) => {
     Expense.findOne(mongoose.Types.ObjectId(req.params.id)).then(exp=> {
       if (exp.user === req.user.name) {

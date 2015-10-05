@@ -24,7 +24,7 @@ module.exports.createUser = () => {
 
 
 module.exports.createExpenses = () => {
-  //Expense.remove({}).then();
+  //Expense.remove({});
   Expense.count({}).then(count => {
     if (count === 0) {
       let date = moment();
