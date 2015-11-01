@@ -24,9 +24,7 @@ module.exports = (app) => {
                   message: 'Authentication failed.'
                 });
               } else {
-                let token = jwt.sign(user, app.get('secret'), {
-                  expiresInMinutes: 1440
-                });
+                let token = jwt.sign(user, app.get('secret'));
                 res.json({
                   token: token,
                   success: true
