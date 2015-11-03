@@ -40,6 +40,47 @@ module.exports = (routes) => {
     let query = {
       user: req.user.name
     };
+
+    const merchant = req.query.merchant;
+    if (merchant) {
+      query.merchant = new RegExp(merchant, 'i');
+    }
+    const min = req.query.min;
+    if (min && !isNaN(min)) {
+      query.total = {$gt: min};
+    }
+
+    const max = req.query.max;
+    if (max && !isNaN(max)) {
+      if (query.total) {
+        query.total.$lt = max;
+      } else {
+        query.total = {$lt: max};
+      }
+    }
+
+    let startDate = req.query.start;
+    if(startDate){
+      const date = moment(startDate);
+      if(date.isValid()){
+        date.startOf('day');
+        query.date = {$gt: date.toDate()};
+      }
+    }
+
+    let endDate = req.query.end;
+    if(endDate){
+      const date = moment(endDate);
+      if(date.isValid()){
+        date.startOf('day');
+        if(query.date) {
+          query.date.$lt = date.toDate();
+        } else {
+          query.date = {$lt: date.toDate()};
+        }
+      }
+    }
+
     let sortProperty = req.query.sort;
     let sortDirection = req.query.direction;
     let sort = '-date';
