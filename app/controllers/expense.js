@@ -36,7 +36,7 @@ module.exports = (routes) => {
   // READ
   routes.get('/expenses', (req, res) => {
     let index = parseInt(req.query.index) || 0;
-    let count = parseInt(req.params.count) || 50;
+    let count = parseInt(req.query.count) || 50;
     let query = {
       user: req.user.name
     };
@@ -116,7 +116,8 @@ module.exports = (routes) => {
             merchant: e.merchant,
             total: e.total,
             date: e.date,
-            status: e.status
+            status: e.status,
+            comment: e.comment
           };
         });
         res.json(resultset);

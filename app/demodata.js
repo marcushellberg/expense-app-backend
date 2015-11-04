@@ -39,7 +39,7 @@ module.exports.createExpenses = () => {
         new Expense({
           user: 'demo',
           date: date,
-          merchant: ['Electronics', 'Rental car', 'Airline', 'Hotel'][Math.floor(Math.random() * 4)],
+          merchant: ['Electronics', 'Rental car', 'Airline', 'Hotel', 'Restaurant', 'Taxi'][Math.floor(Math.random() * 6)],
           total: Math.random() * (Math.random() * 3) * 300 + 10,
           status: status,
           comment: 'No comments, please.',
