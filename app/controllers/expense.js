@@ -59,26 +59,31 @@ module.exports = (routes) => {
       }
     }
 
-    let startDate = req.query.start;
-    if(startDate){
+    const startDate = req.query.start;
+    if (startDate) {
       const date = moment(startDate);
-      if(date.isValid()){
+      if (date.isValid()) {
         date.startOf('day');
         query.date = {$gt: date.toDate()};
       }
     }
 
-    let endDate = req.query.end;
-    if(endDate){
+    const endDate = req.query.end;
+    if (endDate) {
       const date = moment(endDate);
-      if(date.isValid()){
+      if (date.isValid()) {
         date.startOf('day');
-        if(query.date) {
+        if (query.date) {
           query.date.$lt = date.toDate();
         } else {
           query.date = {$lt: date.toDate()};
         }
       }
+    }
+
+    let statuses = req.query.status;
+    if (statuses) {
+      query.status = {$in: statuses.split(',')};
     }
 
     let sortProperty = req.query.sort;
@@ -237,7 +242,7 @@ module.exports = (routes) => {
       Expense.aggregate([{
         $match: {
           $and: [{
-            status: 'New'
+            status: 'new'
           }, {
             user: req.user.name
           }]

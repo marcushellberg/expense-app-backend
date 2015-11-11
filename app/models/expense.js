@@ -2,7 +2,7 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
 let fs = require('fs');
-let statuses = ['New', 'In Progress', 'Reimbursed'];
+let statuses = ['new', 'in_progress', 'reimbursed'];
 
 let expenseSchema = new Schema({
   user: {

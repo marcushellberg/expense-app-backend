@@ -30,11 +30,11 @@ module.exports.createExpenses = () => {
       let date = moment();
       for (let i = 0; i < 10000; i++) {
         date = date.subtract(Math.floor(Math.random() * 72), 'hours');
-        let status = 'New';
+        let status = 'new';
         if (i > 30) {
-          status = 'Reimbursed';
+          status = 'reimbursed';
         } else if (i > 15) {
-          status = 'In Progress';
+          status = 'in_progress';
         }
         new Expense({
           user: 'demo',
