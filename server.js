@@ -10,6 +10,7 @@
   let demodata = require('./app/demodata.js');
 
   let port = 8080;
+  mongoose.Promise = global.Promise;
   mongoose.connect(config.database);
   app.set('secret', config.secret);
   app.use(bodyParser.urlencoded({

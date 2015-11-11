@@ -166,20 +166,12 @@ module.exports = (routes) => {
 
   // DELETE
   routes.delete('/expenses/:id', (req, res) => {
-    Expense.findOne(mongoose.Types.ObjectId(req.params.id)).then(exp=> {
-      if (exp.user === req.user.name) {
-        exp.delete(err => {
-          if (err) {
-            res.status(500);
-          }
-          res.status(200);
-        });
-      } else {
-        res.status(403);
-      }
-    }).catch(()=> {
-      res.status(404);
-    });
+    Expense.findOneAndRemove({
+      _id: mongoose.Types.ObjectId(req.params.id),
+      user: req.user.name,
+      status: 'new'
+    }).then(()=>res.json({success: true})
+      .catch(()=>res.status(403).json({success: false})));
   });
 
   routes.get('/expenses/:id/receipt.jpg', (req, res)=> {
