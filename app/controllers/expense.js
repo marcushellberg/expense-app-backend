@@ -174,7 +174,7 @@ module.exports = (routes) => {
       .catch(()=>res.status(403).json({success: false})));
   });
 
-  routes.get('/expenses/:id/receipt.jpg', (req, res)=> {
+  routes.get('/expenses/:id/receipt.png', (req, res)=> {
     Expense.findOne(mongoose.Types.ObjectId(req.params.id)).then(exp=> {
       if (exp.user === req.user.name) {
         res.sendFile(exp.receipt, {root: RECEIPTS_LOCATION});
